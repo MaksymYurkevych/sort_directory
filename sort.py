@@ -29,6 +29,7 @@ def normalize(file_name):
 
 
 def sort_files(my_path):
+
     extensions = {
         "images": ['.jpeg', '.png', '.jpg', '.svg'],
         "video": ['.avi', '.mp4', '.nov', '.mkv', '.webm'],
@@ -88,4 +89,7 @@ def sort_files(my_path):
 
 
 if __name__ == '__main__':
-    sort_files(argv[1])
+    try:
+        sort_files(argv[1])
+    except IndexError:
+        print("Please provide a path to a folder to be sorted")
