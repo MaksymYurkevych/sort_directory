@@ -1,4 +1,5 @@
 import os
+import shutil
 from glob import glob
 from shutil import move
 from zipfile import ZipFile
@@ -29,7 +30,6 @@ def normalize(file_name):
 
 
 def sort_files(my_path):
-
     extensions = {
         "images": ['.jpeg', '.png', '.jpg', '.svg'],
         "video": ['.avi', '.mp4', '.nov', '.mkv', '.webm'],
@@ -44,22 +44,45 @@ def sort_files(my_path):
             os.rename(os.path.join(root, file),
                       os.path.join(root, normalize(os.path.splitext(file)[0]) + os.path.splitext(file)[1]))
 
-    filename = glob(fr"{my_path}\**\*.*", recursive=True)
+    filename = glob(fr"{my_path}\**\*", recursive=True)
+    used_names = []
+    known_extensions = []
+    unknown_extensions = []
 
     '''Sorting files by folders'''
     for file in filename:
+        if os.path.isdir(file):
+            continue
+
+        if not os.path.splitext(os.path.basename(file))[1]:
+            name = os.path.splitext(os.path.basename(file))[0]
+            name += ".gfdsgfds"
+
         cr_path = ""
 
         for key, value in extensions.items():
             if os.path.splitext(file)[1] in value:
                 cr_path = fr"{my_path}\{key}"
+                known_extensions.append(os.path.splitext(file)[1])
 
         if cr_path == "":
             cr_path = fr"{my_path}\unknown"
+            unknown_extensions.append(os.path.splitext(file)[1])
 
         if not os.path.exists(cr_path):
             os.mkdir(cr_path)
-        move(file, cr_path)
+        try:
+            move(file, cr_path)
+        except shutil.Error:
+            if os.path.basename(file) in used_names:
+                new_name = os.path.splitext(file)[0] + "1" + os.path.splitext(file)[1]
+                os.rename(file, new_name)
+                move(new_name, cr_path)
+
+        used_names.append(os.path.basename(file))
+
+    print(f"Known extensions: {known_extensions}")
+    print(f"Unknown extensions: {unknown_extensions}")
 
     '''Deleting empty folders'''
     list_of_folders = list(os.walk(my_path))
