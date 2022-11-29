@@ -51,6 +51,7 @@ def sort_files(my_path):
 
     '''Sorting files by folders'''
     for file in filename:
+
         if os.path.isdir(file):
             continue
 
@@ -63,11 +64,13 @@ def sort_files(my_path):
         for key, value in extensions.items():
             if os.path.splitext(file)[1] in value:
                 cr_path = fr"{my_path}\{key}"
-                known_extensions.append(os.path.splitext(file)[1])
+                if not os.path.splitext(file)[1] in known_extensions:
+                    known_extensions.append(os.path.splitext(file)[1])
 
         if cr_path == "":
             cr_path = fr"{my_path}\unknown"
-            unknown_extensions.append(os.path.splitext(file)[1])
+            if not os.path.splitext(file)[1] in unknown_extensions:
+                unknown_extensions.append(os.path.splitext(file)[1])
 
         if not os.path.exists(cr_path):
             os.mkdir(cr_path)
